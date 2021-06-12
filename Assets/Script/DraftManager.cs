@@ -4,15 +4,33 @@ using UnityEngine;
 
 public class DraftManager : MonoBehaviour
 {
-    // Start is called before the first frame update
+    [SerializeField] CardController cardPrefab;
+    [SerializeField] Transform CardSelectField;
+    int[] randomCardID = new int[3];
+
     void Start()
     {
-        
+        /*for(int i = 0;i < 3;i++)
+        {
+            randomCardID[i] = Random.Range(0, 3);
+        }*/
+        StartGame();
     }
 
-    // Update is called once per frame
-    void Update()
+    void StartGame()
     {
-        
+        CreateCard(1, CardSelectField);
+        CreateCard(2, CardSelectField);
+        CreateCard(3, CardSelectField);
+        /*for(int i = 0;i < 3;i++)
+        {
+            CreateCard(1, CardSelectField);
+        }*/
+    }
+
+    void CreateCard(int cardID, Transform place)
+    {
+        CardController card = Instantiate(cardPrefab, CardSelectField);
+        card.Init(cardID);
     }
 }
