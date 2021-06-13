@@ -85,6 +85,8 @@ GameObject:
   m_Component:
   - component: {fileID: 6617684057625351960}
   - component: {fileID: 6617684057625351963}
+  - component: {fileID: -1208101031270287902}
+  - component: {fileID: -7289310333791981517}
   m_Layer: 5
   m_Name: Card
   m_TagString: Untagged
@@ -124,6 +126,35 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6617684057625351961}
   m_CullTransparentMesh: 1
+--- !u!114 &-1208101031270287902
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6617684057625351961}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de4eedf0a883c2d4194b0825f39104e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  view: {fileID: 0}
+--- !u!114 &-7289310333791981517
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6617684057625351961}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07af037e6ef5c864dbed80d5e8ad2f4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nameText: {fileID: 6617684058664015449}
+  powerText: {fileID: 6617684058235124248}
+  hpText: {fileID: 6617684057821971859}
+  costText: {fileID: 6617684058048400061}
 --- !u!1 &6617684057728433439
 GameObject:
   m_ObjectHideFlags: 0
@@ -288,7 +319,7 @@ GameObject:
   - component: {fileID: 6617684057821971858}
   - component: {fileID: 6617684057821971859}
   m_Layer: 5
-  m_Name: Power
+  m_Name: HP
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
