@@ -4,18 +4,28 @@ using UnityEngine;
 
 public class DraftManager : MonoBehaviour
 {
-    [SerializeField] CardController cardPrefab;
-    [SerializeField] Transform CardSelectField;
+    [SerializeField] CardController cardPrefab; //カードのprefab取得
+    [SerializeField] Transform cardSelectField; //カードを表示する場所を取得
+    [SerializeField] int deckCount; //デッキの枚数
 
-    List<CardController> cardList = new List<CardController>();
+    //選択部分に出てきているカードの情報を保持（リセット用）
+    List<CardController> fieldCardList = new List<CardController>();
 
-    int end = 5;
+    //選択したカードの情報を保持
+    List<CardController> deckList = new List<CardController>();
 
+    int end = 5; //カードの種類を取得（そのうち自動化したい）
+    
     void Start()
     {
+        if(deckCount < 1)
+        {
+            deckCount = 1;
+        }
         CreateDraftCard();
     }
 
+    //カード生成処理
     public void CreateDraftCard()
     {
         List<int> cardIDList = new List<int>();
@@ -31,20 +41,28 @@ public class DraftManager : MonoBehaviour
         {
             int index = Random.Range(0, cardIDList.Count);
             int cardID = cardIDList[index];
-            CardController card = Instantiate(cardPrefab, CardSelectField);
+            CardController card = Instantiate(cardPrefab, cardSelectField);
             card.Init(cardID);
-            cardList.Add(card);
+            fieldCardList.Add(card);
             cardIDList.RemoveAt(index);
         }
     }
 
+    //選択カード保存処理
+    public void cardSelect(CardController selectCard)
+    {
+        deckList.Add(selectCard);
+        Debug.Log(deckList[deckList.Count - 1].model.name);//テスト用
+    }
+
+    //選択画面リセット処理
     public void ResetField()
     {
-        for(int i = 0;i < cardList.Count;i++)
+        for(int i = 0;i < fieldCardList.Count;i++)
         {
-            Destroy(cardList[i].gameObject);
+            Destroy(fieldCardList[i].gameObject);
         }
-        cardList.Clear();
+        fieldCardList.Clear();
     }
 
     //カード生成機能（今は上と統合。分離の必要があったらこっち使う）

@@ -381,7 +381,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cardPrefab: {fileID: 5516113045466611988, guid: 525cba701f3996d4883c4b614ac8bda3, type: 3}
-  CardSelectField: {fileID: 1830188341}
+  cardSelectField: {fileID: 1830188341}
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0

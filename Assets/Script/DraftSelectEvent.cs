@@ -6,11 +6,17 @@ public class DraftSelectEvent : MonoBehaviour
 {
     public void MyPointerDownUI()
     {
-        //ここにデッキ保存のためのスクリプトを追加する
-
-        //カード再生成処理
+        //DraftManegerを探す
         GameObject draftManagerObject = GameObject.Find("DraftManager") as GameObject;
         DraftManager draftManagerScript = draftManagerObject.GetComponent<DraftManager>();
+
+        //カード情報取得
+        CardController selectCard = GetComponent<CardController>();
+
+        //ここにデッキ保存のためのスクリプトを追加する
+        draftManagerScript.cardSelect(selectCard);
+
+        //カード再生成処理
         draftManagerScript.ResetField();
         draftManagerScript.CreateDraftCard();
     }
