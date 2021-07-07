@@ -4,20 +4,49 @@ using UnityEngine;
 
 public class DraftSelectEvent : MonoBehaviour
 {
+    [SerializeField] GameObject cardEdge;
+    //DraftManegerを探す
+    GameObject draftManagerObject;
+    DraftManager draftManagerScript;
+
+    private void Start()
+    {
+        cardEdge.SetActive(false);
+        draftManagerObject = GameObject.Find("DraftManager") as GameObject;
+        draftManagerScript = draftManagerObject.GetComponent<DraftManager>();
+    }
+
+    public void MyPointerEnterUI()
+    {
+        if (draftManagerScript.selectEnd == false)
+        {
+            cardEdge.SetActive(true);
+        }
+    }
+
+    public void MyPointerExitUI()
+    {
+        if (draftManagerScript.selectEnd == false)
+        {
+            cardEdge.SetActive(false);
+        }
+    }
+
     public void MyPointerDownUI()
     {
-        //DraftManegerを探す
-        GameObject draftManagerObject = GameObject.Find("DraftManager") as GameObject;
-        DraftManager draftManagerScript = draftManagerObject.GetComponent<DraftManager>();
-
         //カード情報取得
         CardController selectCard = GetComponent<CardController>();
 
-        //ここにデッキ保存のためのスクリプトを追加する
+        //表示リセット処理
+        draftManagerScript.ResetField();
+
+        //デッキ保存処理
         draftManagerScript.cardSelect(selectCard);
 
-        //カード再生成処理
-        draftManagerScript.ResetField();
-        draftManagerScript.CreateDraftCard();
+        if (draftManagerScript.selectEnd == false)
+        {
+            //カード再生成処理
+            draftManagerScript.CreateDraftCard();
+        }
     }
 }

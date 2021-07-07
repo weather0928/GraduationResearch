@@ -12,9 +12,9 @@ public class CardModel
     public int hp;
     //public Sprite icon; //‰æ‘œ•\¦iŒã“ú’Ç‰Áj
 
-    public CardModel(int cardID)
+    public CardModel(int selectCardID)
     {
-        CardEntity cardEntity = Resources.Load<CardEntity>("CardList/Test" + cardID);
+        CardEntity cardEntity = Resources.Load<CardEntity>("CardList/Test" + selectCardID);
 
         cardID = cardEntity.cardID;
         name = cardEntity.name;
