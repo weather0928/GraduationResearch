@@ -6,12 +6,17 @@ using UnityEngine.UI;
 public class DraftManager : MonoBehaviour
 {
     [SerializeField] CardController cardPrefab; //カードのprefab取得
-    [SerializeField] Transform cardSelectField; //カードを表示する場所を取得
+    [SerializeField] Transform cardSelectFieldR; //カードを表示する場所を取得（右側）
+    [SerializeField] Transform cardSelectFieldL; //カードを表示する場所を取得（左側）
     [SerializeField] Text text; //画面上部の表示部分
-    [SerializeField] int deckCount; //デッキの枚数
+    [SerializeField] int pickCount; //ピック回数
+    int deckCount; //デッキの枚数（ピック回数×２）
 
     //選択部分に出てきているカードの情報を保持（リセット用）
     List<CardController> fieldCardList = new List<CardController>();
+
+    //選択部分に出てきているカードのIDを保持
+    List<int> fieldCardIDList = new List<int>();
 
     //選択したカードの情報を保持
     List<CardController> deckList = new List<CardController>();
@@ -23,11 +28,12 @@ public class DraftManager : MonoBehaviour
     
     void Start()
     {
-        if(deckCount < 1)
+        if(pickCount < 1)
         {
-            deckCount = 1;
+            pickCount = 1;
         }
-        text.text = "カードを1枚選択してください";
+        deckCount = pickCount * 2;
+        text.text = "どちらかのカードを選択してください";
         selectEnd = false;
         CreateDraftCard();
     }
@@ -35,23 +41,43 @@ public class DraftManager : MonoBehaviour
     //カード生成処理
     public void CreateDraftCard()
     {
-        List<int> cardIDList = new List<int>();
+        //選択肢の数
+        int choices = 2;
 
-        for (int i = 1; i <= end; i++)
+        //選ばれたカードのIDを保存
+        while(choices-- > 0)
         {
-            cardIDList.Add(i);
+            List<int> cardIDList = new List<int>();
+
+            for (int i = 1; i <= end; i++)
+            {
+                cardIDList.Add(i);
+            }
+
+            int cardCount = 2;
+
+            while (cardCount-- > 0)
+            {
+                int index = Random.Range(0, cardIDList.Count);
+                int cardID = cardIDList[index];
+                fieldCardIDList.Add(cardID);
+                cardIDList.RemoveAt(index);
+            }
         }
 
-        int count = 3;
-
-        while (count-- > 0)
+        //カードを左右に表示（2枚ずつ）
+        for (int i = 0; i < 2; i++)
         {
-            int index = Random.Range(0, cardIDList.Count);
-            int cardID = cardIDList[index];
-            CardController card = Instantiate(cardPrefab, cardSelectField);
-            card.Init(cardID);
+            CardController card = Instantiate(cardPrefab, cardSelectFieldL);
+            card.Init(fieldCardIDList[i]);
             fieldCardList.Add(card);
-            cardIDList.RemoveAt(index);
+        }
+
+        for (int i = 2; i < 4; i++)
+        {
+            CardController card = Instantiate(cardPrefab, cardSelectFieldR);
+            card.Init(fieldCardIDList[i]);
+            fieldCardList.Add(card);
         }
     }
 
@@ -67,10 +93,10 @@ public class DraftManager : MonoBehaviour
             {
                 selectEnd = true;
                 text.text = "デッキ内容";
-                for (int i = 0; i < deckList.Count; i++)
+                /*for (int i = 0; i < deckList.Count; i++)
                 {
                     CreateCard(deckList[i].model.cardID, cardSelectField);
-                }
+                }*/
             }
         }
     }
@@ -86,9 +112,9 @@ public class DraftManager : MonoBehaviour
     }
 
     //カード生成機能（デッキ表示用）
-    void CreateCard(int cardID, Transform place)
+    /*void CreateCard(int cardID, Transform place)
     {
         CardController card = Instantiate(cardPrefab, cardSelectField);
         card.Init(cardID);
-    }
+    }*/
 }
