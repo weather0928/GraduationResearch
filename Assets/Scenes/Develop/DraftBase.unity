@@ -639,10 +639,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cardPrefab: {fileID: 5516113045466611988, guid: 525cba701f3996d4883c4b614ac8bda3, type: 3}
+  draftCanvas: {fileID: 1175001442}
   cardSelectFieldR: {fileID: 534397698}
   cardSelectFieldL: {fileID: 1830188341}
-  text: {fileID: 1213671256}
-  pickCount: 0
+  deckCanvas: {fileID: 2127627860}
+  cardDisplayCanvas: {fileID: 1247464245}
+  pickCount: 5
 --- !u!1 &874574174
 GameObject:
   m_ObjectHideFlags: 0
@@ -687,6 +689,7 @@ GameObject:
   - component: {fileID: 937117497}
   - component: {fileID: 937117496}
   - component: {fileID: 937117495}
+  - component: {fileID: 937117498}
   m_Layer: 5
   m_Name: CardSelectButton (1)
   m_TagString: Untagged
@@ -757,7 +760,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 937117496}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 937117498}
+        m_TargetAssemblyTypeName: DraftSelectEvent, Assembly-CSharp
+        m_MethodName: MyPointerDownUI
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &937117496
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -796,6 +811,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 937117493}
   m_CullTransparentMesh: 1
+--- !u!114 &937117498
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 937117493}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71f221fe7d844a645acfd79c6aee853d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rightButton: 1
+  leftButton: 0
 --- !u!1 &950718815
 GameObject:
   m_ObjectHideFlags: 0
@@ -1563,6 +1592,7 @@ GameObject:
   - component: {fileID: 1712739732}
   - component: {fileID: 1712739731}
   - component: {fileID: 1712739730}
+  - component: {fileID: 1712739733}
   m_Layer: 5
   m_Name: CardSelectButton
   m_TagString: Untagged
@@ -1633,7 +1663,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1712739731}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1712739733}
+        m_TargetAssemblyTypeName: DraftSelectEvent, Assembly-CSharp
+        m_MethodName: MyPointerDownUI
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1712739731
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1672,6 +1714,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1712739728}
   m_CullTransparentMesh: 1
+--- !u!114 &1712739733
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1712739728}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71f221fe7d844a645acfd79c6aee853d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rightButton: 0
+  leftButton: 1
 --- !u!1 &1830188340
 GameObject:
   m_ObjectHideFlags: 0

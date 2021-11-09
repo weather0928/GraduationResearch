@@ -12,8 +12,6 @@ GameObject:
   - component: {fileID: 2241432765533496507}
   - component: {fileID: 5516113045466611988}
   - component: {fileID: 4980131545114509286}
-  - component: {fileID: 8010620379412126111}
-  - component: {fileID: 4931928465567497816}
   m_Layer: 5
   m_Name: DraftSelectCard
   m_TagString: Untagged
@@ -83,80 +81,6 @@ MonoBehaviour:
   powerText: {fileID: 2241432767215913400}
   hpText: {fileID: 2241432765729044019}
   costText: {fileID: 2241432765921786141}
---- !u!114 &8010620379412126111
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2241432765533496505}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 71f221fe7d844a645acfd79c6aee853d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cardEdge: {fileID: 5933798966697503048}
---- !u!114 &4931928465567497816
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2241432765533496505}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Delegates:
-  - eventID: 2
-    callback:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 8010620379412126111}
-          m_TargetAssemblyTypeName: DraftSelectEvent, Assembly-CSharp
-          m_MethodName: MyPointerDownUI
-          m_Mode: 1
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-  - eventID: 0
-    callback:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 8010620379412126111}
-          m_TargetAssemblyTypeName: DraftSelectEvent, Assembly-CSharp
-          m_MethodName: MyPointerEnterUI
-          m_Mode: 1
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-  - eventID: 1
-    callback:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 8010620379412126111}
-          m_TargetAssemblyTypeName: DraftSelectEvent, Assembly-CSharp
-          m_MethodName: MyPointerExitUI
-          m_Mode: 1
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
 --- !u!1 &2241432765703048895
 GameObject:
   m_ObjectHideFlags: 0

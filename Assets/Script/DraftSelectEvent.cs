@@ -4,44 +4,36 @@ using UnityEngine;
 
 public class DraftSelectEvent : MonoBehaviour
 {
-    [SerializeField] GameObject cardEdge;
+
+    [SerializeField] bool rightButton;
+    [SerializeField] bool leftButton;
     //DraftManegerを探す
     GameObject draftManagerObject;
     DraftManager draftManagerScript;
 
     private void Start()
     {
-        cardEdge.SetActive(false);
         draftManagerObject = GameObject.Find("DraftManager") as GameObject;
         draftManagerScript = draftManagerObject.GetComponent<DraftManager>();
-    }
-
-    public void MyPointerEnterUI()
-    {
-        if (draftManagerScript.selectEnd == false)
-        {
-            cardEdge.SetActive(true);
-        }
-    }
-
-    public void MyPointerExitUI()
-    {
-        if (draftManagerScript.selectEnd == false)
-        {
-            cardEdge.SetActive(false);
-        }
     }
 
     public void MyPointerDownUI()
     {
         //カード情報取得
-        CardController selectCard = GetComponent<CardController>();
+        CardController selectButton = GetComponent<CardController>();
 
         //表示リセット処理
         draftManagerScript.ResetField();
 
         //デッキ保存処理
-        draftManagerScript.cardSelect(selectCard);
+        if (rightButton == true)
+        {
+            draftManagerScript.cardSelect(2,4);
+        }
+        else if (leftButton == true)
+        {
+            draftManagerScript.cardSelect(0,2);
+        }
 
         if (draftManagerScript.selectEnd == false)
         {
