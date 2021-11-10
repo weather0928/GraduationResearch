@@ -17,3 +17,4 @@ MonoBehaviour:
   cost: 2
   power: 2
   hp: 2
+  evaluation: 2

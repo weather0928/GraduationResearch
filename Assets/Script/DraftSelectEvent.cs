@@ -22,9 +22,6 @@ public class DraftSelectEvent : MonoBehaviour
         //カード情報取得
         CardController selectButton = GetComponent<CardController>();
 
-        //表示リセット処理
-        draftManagerScript.ResetField();
-
         //デッキ保存処理
         if (rightButton == true)
         {
@@ -34,6 +31,9 @@ public class DraftSelectEvent : MonoBehaviour
         {
             draftManagerScript.cardSelect(0,2);
         }
+
+        //表示リセット処理
+        draftManagerScript.ResetField();
 
         if (draftManagerScript.selectEnd == false)
         {

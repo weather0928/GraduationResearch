@@ -11,5 +11,6 @@ public class CardEntity : ScriptableObject
     public int cost;
     public int power;
     public int hp;
-    //public Sprite icon; //画像表示（後日追加）
+    public int evaluation;
+    //public Sprite icon; //画像表示（後日追加?）
 }
