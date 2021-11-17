@@ -644,7 +644,8 @@ MonoBehaviour:
   cardSelectFieldL: {fileID: 1830188341}
   deckCanvas: {fileID: 2127627860}
   cardDisplayCanvas: {fileID: 1247464245}
-  pickCount: 5
+  pickCount: 15
+  NPCDeckBuildFlag: 1
 --- !u!1 &874574174
 GameObject:
   m_ObjectHideFlags: 0

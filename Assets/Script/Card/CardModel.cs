@@ -10,6 +10,7 @@ public class CardModel
     public int cost;
     public int power;
     public int hp;
+    public int evaluation;
     //public Sprite icon; //‰æ‘œ•\¦iŒã“ú’Ç‰Áj
 
     public CardModel(int selectCardID)
@@ -21,6 +22,7 @@ public class CardModel
         cost = cardEntity.cost;
         power = cardEntity.power;
         hp = cardEntity.hp;
+        evaluation = cardEntity.evaluation;
         //icon = cardEntity.icon;
     }
 }

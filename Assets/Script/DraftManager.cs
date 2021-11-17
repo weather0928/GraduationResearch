@@ -17,19 +17,25 @@ public class DraftManager : MonoBehaviour
     [SerializeField] int pickCount; //ピック回数
     int deckCount; //デッキの枚数（ピック回数×２）
 
-    //選択部分に出てきているカードの情報を保持（リセット用）
-    List<CardController> fieldCardList = new List<CardController>();
+    //左側に出てきているカードの情報を保持
+    [System.NonSerialized] public List<CardController> leftCardList = new List<CardController>();
 
-    //選択部分に出てきているカードのIDを保持
-    List<int> fieldCardIDList = new List<int>();
+    //右側に出てきているカードの情報を保持
+    [System.NonSerialized] public List<CardController> rightCardList = new List<CardController>();
 
-    //選択したカードのIDを保持
-    List<int> deckList = new List<int>();
+    //デッキ情報
+    Deck playerDeck;
+    Deck NPCDeck1, NPCDeck2;
 
     //選択終了フラグ
     [System.NonSerialized] public bool selectEnd;
 
-    int end = 5; //カードの種類を取得（そのうち自動化したい）
+    [SerializeField] bool NPCDeckBuildFlag;
+    int NPCChangeEvaluation;
+
+    int Cost2Count;
+
+    int end = 12; //カードの種類を取得（そのうち自動化したい）
     
     void Start()
     {
@@ -40,6 +46,20 @@ public class DraftManager : MonoBehaviour
         deckCount = pickCount * 2;
         selectEnd = false;
         CreateDraftCard();
+        if(NPCDeckBuildFlag == true)
+        {
+            NPCDeck1 = Resources.Load<Deck>("Deck/NPC1");
+            NPCDeck2 = Resources.Load<Deck>("Deck/NPC2");
+            NPCDeck1.cardList.Clear();
+            NPCDeck2.cardList.Clear();
+            NPCChangeEvaluation = deckCount / 3 * 2;
+            NPCDeckBuild();
+        }
+        else
+        {
+            playerDeck = Resources.Load<Deck>("Deck/Test");
+            playerDeck.cardList.Clear();
+        }
     }
 
     //カード生成処理
@@ -53,53 +73,55 @@ public class DraftManager : MonoBehaviour
             cardIDList.Add(i);
         }
 
-        int cardCount = 4;
-
-        //カード選出処理
-        while (cardCount-- > 0)
-        {
-            int index = Random.Range(0, cardIDList.Count);
-            int cardID = cardIDList[index];
-            fieldCardIDList.Add(cardID);
-            cardIDList.RemoveAt(index);
-        }
-
         //カードを左右に表示
         for (int i = 0; i < 2; i++)
         {
+            int index, cardID;
+
             //左側
-            CardController leftCard = Instantiate(cardPrefab, cardSelectFieldL);
-            leftCard.Init(fieldCardIDList[i]);
-            fieldCardList.Add(leftCard);
+            index = Random.Range(0, cardIDList.Count);
+            cardID = cardIDList[index];
+            CardController leftCard = CreatePickCard(cardID, cardSelectFieldL);
+            leftCardList.Add(leftCard);
+            cardIDList.RemoveAt(index);
 
             //右側
-            CardController rightCard = Instantiate(cardPrefab, cardSelectFieldR);
-            rightCard.Init(fieldCardIDList[i + 2]);
-            fieldCardList.Add(rightCard);
+            index = Random.Range(0, cardIDList.Count);
+            cardID = cardIDList[index];
+            CardController rightCard = CreatePickCard(cardID, cardSelectFieldR);
+            rightCardList.Add(rightCard);
+            cardIDList.RemoveAt(index);
         }
     }
 
     //選択カード保存処理
-    public void cardSelect(int start,int end)
+    public void cardSelect(List<CardController> cardList,Deck deck)
     {
         if(selectEnd == false)
         { 
-            for (int i = start; i < end; i++)
+            for (int i = 0; i < cardList.Count; i++)
             {
-                deckList.Add(fieldCardIDList[i]);
+                deck.cardList.Add(cardList[i].model.cardID);
+                if(cardList[i].model.cost == 2)
+                {
+                    Cost2Count++;
+                }
             }
 
-            fieldCardIDList.Clear();
-
             //デッキ完成処理
-            if (deckList.Count == deckCount)
+            //プレイヤーがデッキを作る場合
+            if(NPCDeckBuildFlag == false)
             {
-                draftCanvas.SetActive(false);
-                deckCanvas.SetActive(true);
-                selectEnd = true;
-                for (int i = 0; i < deckList.Count; i++)
+                if (deck.cardList.Count == deckCount)
                 {
-                    CreateCard(deckList[i], cardDisplayCanvas);
+                    draftCanvas.SetActive(false);
+                    deckCanvas.SetActive(true);
+                    selectEnd = true;
+                    /*for (int i = 0; i < deck.cardList.Count; i++)
+                    {
+                        CreateCard(deck.cardList[i], cardDisplayCanvas);
+                    }*/
+                    Debug.Log(Cost2Count);
                 }
             }
         }
@@ -108,11 +130,21 @@ public class DraftManager : MonoBehaviour
     //選択画面リセット処理
     public void ResetField()
     {
-        for(int i = 0;i < fieldCardList.Count;i++)
+        for(int i = 0;i < 2;i++)
         {
-            Destroy(fieldCardList[i].gameObject);
+            Destroy(leftCardList[i].gameObject);
+            Destroy(rightCardList[i].gameObject);
         }
-        fieldCardList.Clear();
+        leftCardList.Clear();
+        rightCardList.Clear();
+    }
+
+    //カード生成機能（ピック画面用）
+    CardController CreatePickCard(int cardID,Transform place)
+    {
+        CardController card = Instantiate(cardPrefab, place);
+        card.Init(cardID);
+        return card;
     }
 
     //カード生成機能（デッキ表示用）
@@ -120,5 +152,89 @@ public class DraftManager : MonoBehaviour
     {
         CardController card = Instantiate(cardPrefab, place);
         card.Init(cardID);
+    }
+
+    //NPCデッキ制作処理(共通部分)
+    void NPCDeckBuild()
+    {
+        while(selectEnd == false)
+        {
+            int leftSelectEvaluation = 0;
+            int rightSelectEvaluation = 0;
+
+            for(int i = 0;i < 2;i++)
+            {
+                leftSelectEvaluation += leftCardList[i].model.evaluation;
+                rightSelectEvaluation += rightCardList[i].model.evaluation;
+            }
+
+            NPC1Pick(leftSelectEvaluation, rightSelectEvaluation, NPCDeck1);
+            NPC2Pick(leftSelectEvaluation, rightSelectEvaluation, NPCDeck2);
+
+            if(NPCDeck1.cardList.Count == deckCount)
+            {
+                draftCanvas.SetActive(false);
+                deckCanvas.SetActive(true);
+                selectEnd = true;
+                /*for (int i = 0; i < deck.cardList.Count; i++)
+                {
+                    CreateCard(deck.cardList[i], cardDisplayCanvas);
+                }*/
+                Debug.Log(Cost2Count);
+            }
+
+            ResetField();
+
+            if (selectEnd == false)
+            {
+                //カード再生成処理
+                CreateDraftCard();
+            }
+        }
+    }
+
+    //NPCの思考部分
+    //2コスの枚数調整をするNPC
+    void NPC1Pick(int leftEvaluation, int rightEvaluation, Deck deck)
+    {
+        if (NPCDeck1.cardList.Count >= NPCChangeEvaluation
+                && Cost2Count < deckCount / 3)
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                if (leftCardList[i].model.cost == 2)
+                {
+                    leftEvaluation += 5;
+                }
+                if (rightCardList[i].model.cost == 2)
+                {
+                    rightEvaluation += 5;
+                }
+            }
+        }
+
+        if (leftEvaluation >= rightEvaluation)
+        {
+            cardSelect(leftCardList,deck);
+        }
+        else if (leftEvaluation < rightEvaluation)
+        {
+            cardSelect(rightCardList,deck);
+        }
+    }
+
+    //ランダムなカードをピックするNPC
+    void NPC2Pick(int leftEvaluation, int rightEvaluation, Deck deck)
+    {
+        int random = Random.Range(0, 2);
+
+        if (random == 0)
+        {
+            cardSelect(leftCardList, deck);
+        }
+        else if (random == 1)
+        {
+            cardSelect(rightCardList, deck);
+        }
     }
 }
