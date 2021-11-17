@@ -11,25 +11,26 @@ public class DraftSelectEvent : MonoBehaviour
     GameObject draftManagerObject;
     DraftManager draftManagerScript;
 
+    Deck deck;
+
     private void Start()
     {
         draftManagerObject = GameObject.Find("DraftManager") as GameObject;
         draftManagerScript = draftManagerObject.GetComponent<DraftManager>();
+        deck = Resources.Load<Deck>("Deck/Test");
     }
 
     public void MyPointerDownUI()
     {
-        //カード情報取得
-        CardController selectButton = GetComponent<CardController>();
 
         //デッキ保存処理
         if (rightButton == true)
         {
-            draftManagerScript.cardSelect(2,4);
+            draftManagerScript.cardSelect(draftManagerScript.rightCardList,deck);
         }
         else if (leftButton == true)
         {
-            draftManagerScript.cardSelect(0,2);
+            draftManagerScript.cardSelect(draftManagerScript.leftCardList,deck);
         }
 
         //表示リセット処理
