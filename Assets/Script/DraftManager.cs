@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEditor;
 
 public class DraftManager : MonoBehaviour
 {
@@ -117,6 +118,10 @@ public class DraftManager : MonoBehaviour
                     draftCanvas.SetActive(false);
                     deckCanvas.SetActive(true);
                     selectEnd = true;
+
+                    //デッキを再起動後も保存する処理
+                    EditorUtility.SetDirty(playerDeck);
+                    AssetDatabase.SaveAssets();
                     /*for (int i = 0; i < deck.cardList.Count; i++)
                     {
                         CreateCard(deck.cardList[i], cardDisplayCanvas);
@@ -175,6 +180,12 @@ public class DraftManager : MonoBehaviour
             {
                 draftCanvas.SetActive(false);
                 deckCanvas.SetActive(true);
+
+                //デッキを再起動後も保存する処理
+                EditorUtility.SetDirty(NPCDeck1);
+                EditorUtility.SetDirty(NPCDeck2);
+                AssetDatabase.SaveAssets();
+
                 selectEnd = true;
                 /*for (int i = 0; i < deck.cardList.Count; i++)
                 {
