@@ -11,6 +11,7 @@ public class CardModel
     public int power;
     public int hp;
     public int evaluation;
+    public bool canAttack = false;
     //public Sprite icon; //‰æ‘œ•\¦iŒã“ú’Ç‰Áj
 
     public CardModel(int selectCardID)

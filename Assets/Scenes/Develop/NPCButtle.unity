@@ -1382,11 +1382,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cardPrefab: {fileID: -1208101031270287902, guid: 3cbd9b9ecc2645e4ab96479fd70889d4, type: 3}
-  handCardPrefab: {fileID: -1208101031270287902, guid: 0055bacee3a05224bb25976101863eb1, type: 3}
+  handCardPrefab: {fileID: -1208101031270287902, guid: 3cbd9b9ecc2645e4ab96479fd70889d4, type: 3}
   NPC1Field: {fileID: 897196924}
   NPC1ManaCost: {fileID: 96731491}
+  NPC1HPText: {fileID: 1432203736}
   NPC2Field: {fileID: 1791484658}
   NPC2ManaCost: {fileID: 53451330}
+  NPC2HPText: {fileID: 912815095}
   NPC1HandCard: {fileID: 938793941}
   NPC2HandCard: {fileID: 2137350905}
 --- !u!4 &1712973542
