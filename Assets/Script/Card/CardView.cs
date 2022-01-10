@@ -15,4 +15,9 @@ public class CardView : MonoBehaviour
         powerText.text = cardModel.power.ToString();
         hpText.text = cardModel.hp.ToString();
     }
+
+    public void HPValue(int HP)
+    {
+        hpText.text = HP.ToString();
+    }
 }
