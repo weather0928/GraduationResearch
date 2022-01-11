@@ -27,6 +27,12 @@ public class DraftManager : MonoBehaviour
     //デッキ情報
     Deck playerDeck;
     Deck NPCDeck1, NPCDeck2;
+    [System.NonSerialized] public int[] playerDeckCost = new int[8]; //マナカーブを確認するためのもの
+    int[] NPC1deckCost = new int[8]; //マナカーブを確認するためのもの
+    int[] NPC2deckCost = new int[8]; //マナカーブを確認するためのもの
+
+    //NPCデッキ制作用。どれくらい評価を変動させるのかを入れる
+    [SerializeField] int evaluationFluctuation;
 
     //選択終了フラグ
     [System.NonSerialized] public bool selectEnd;
@@ -36,7 +42,7 @@ public class DraftManager : MonoBehaviour
 
     int Cost2Count;
 
-    int end = 12; //カードの種類を取得（そのうち自動化したい）
+    int end = 63; //カードの種類を取得（そのうち自動化したい）
     
     void Start()
     {
@@ -54,6 +60,7 @@ public class DraftManager : MonoBehaviour
             NPCDeck1.cardList.Clear();
             NPCDeck2.cardList.Clear();
             NPCChangeEvaluation = deckCount / 3 * 2;
+
             NPCDeckBuild();
         }
         else
@@ -96,16 +103,22 @@ public class DraftManager : MonoBehaviour
     }
 
     //選択カード保存処理
-    public void cardSelect(List<CardController> cardList,Deck deck)
+    public void cardSelect(List<CardController> cardList,Deck deck,int[] manaCost)
     {
         if(selectEnd == false)
         { 
             for (int i = 0; i < cardList.Count; i++)
             {
                 deck.cardList.Add(cardList[i].model.cardID);
-                if(cardList[i].model.cost == 2)
+
+                //デッキ内マナコスト反映処理
+                if(cardList[i].model.cost < 8)
                 {
-                    Cost2Count++;
+                    manaCost[cardList[i].model.cost - 1]++;
+                }
+                else
+                {
+                    manaCost[7]++;
                 }
             }
 
@@ -164,8 +177,8 @@ public class DraftManager : MonoBehaviour
     {
         while(selectEnd == false)
         {
-            int leftSelectEvaluation = 0;
-            int rightSelectEvaluation = 0;
+            float leftSelectEvaluation = 0;
+            float rightSelectEvaluation = 0;
 
             for(int i = 0;i < 2;i++)
             {
@@ -174,7 +187,7 @@ public class DraftManager : MonoBehaviour
             }
 
             NPC1Pick(leftSelectEvaluation, rightSelectEvaluation, NPCDeck1);
-            NPC2Pick(leftSelectEvaluation, rightSelectEvaluation, NPCDeck2);
+            //NPC2Pick(leftSelectEvaluation, rightSelectEvaluation, NPCDeck2);
 
             if(NPCDeck1.cardList.Count == deckCount)
             {
@@ -183,15 +196,10 @@ public class DraftManager : MonoBehaviour
 
                 //デッキを再起動後も保存する処理
                 EditorUtility.SetDirty(NPCDeck1);
-                EditorUtility.SetDirty(NPCDeck2);
+                //EditorUtility.SetDirty(NPCDeck2);
                 AssetDatabase.SaveAssets();
 
                 selectEnd = true;
-                /*for (int i = 0; i < deck.cardList.Count; i++)
-                {
-                    CreateCard(deck.cardList[i], cardDisplayCanvas);
-                }*/
-                Debug.Log(Cost2Count);
             }
 
             ResetField();
@@ -201,51 +209,203 @@ public class DraftManager : MonoBehaviour
                 //カード再生成処理
                 CreateDraftCard();
             }
+            else
+            {
+                Debug.Log("1:" + NPC1deckCost[0] + " 2:" + NPC1deckCost[1] + " 3:" + NPC1deckCost[2] + " 4:" + NPC1deckCost[3]
+                    + " 5:" + NPC1deckCost[4] + " 6:" + NPC1deckCost[5] + " 7:" + NPC1deckCost[6] + " 8over:" + NPC1deckCost[7]);
+                ManaCarveEvaluation();
+            }
         }
     }
 
     //NPCの思考部分
-    //2コスの枚数調整をするNPC
-    void NPC1Pick(int leftEvaluation, int rightEvaluation, Deck deck)
+    //マナカーブの調整をするNPC
+    void NPC1Pick(float leftEvaluation, float rightEvaluation, Deck deck)
     {
-        if (NPCDeck1.cardList.Count >= NPCChangeEvaluation
-                && Cost2Count < deckCount / 3)
+        if (NPCDeck1.cardList.Count >= NPCChangeEvaluation)
         {
-            for (int i = 0; i < 2; i++)
-            {
-                if (leftCardList[i].model.cost == 2)
-                {
-                    leftEvaluation += 5;
-                }
-                if (rightCardList[i].model.cost == 2)
-                {
-                    rightEvaluation += 5;
-                }
-            }
+            leftEvaluation = EvaluationFluctuation(leftCardList,leftEvaluation, NPC1deckCost);
+            rightEvaluation = EvaluationFluctuation(rightCardList, rightEvaluation, NPC1deckCost);
         }
 
         if (leftEvaluation >= rightEvaluation)
         {
-            cardSelect(leftCardList,deck);
+            cardSelect(leftCardList,deck,NPC1deckCost);
         }
         else if (leftEvaluation < rightEvaluation)
         {
-            cardSelect(rightCardList,deck);
+            cardSelect(rightCardList,deck,NPC1deckCost);
         }
     }
 
     //ランダムなカードをピックするNPC
-    void NPC2Pick(int leftEvaluation, int rightEvaluation, Deck deck)
+    void NPC2Pick(float leftEvaluation, float rightEvaluation, Deck deck)
     {
         int random = Random.Range(0, 2);
 
         if (random == 0)
         {
-            cardSelect(leftCardList, deck);
+            cardSelect(leftCardList, deck,NPC2deckCost);
         }
         else if (random == 1)
         {
-            cardSelect(rightCardList, deck);
+            cardSelect(rightCardList, deck,NPC2deckCost);
         }
+    }
+
+    //マナカーブ実験用
+    float EvaluationFluctuation(List<CardController> cardList, float evaluationNum, int[] deckManaCost)
+    {
+        float fluctuationNum = 0;
+
+        for (int i = 0; i < 2; i++)
+        {
+            switch (cardList[i].model.cost)
+            {
+                case 1:
+                    if (deckManaCost[0] >= 3)
+                    {
+                        fluctuationNum = evaluationNum - evaluationFluctuation;
+                    }
+                    break;
+                case 2:
+                    if (deckManaCost[1] < 6)
+                    {
+                        fluctuationNum = evaluationNum + evaluationFluctuation;
+                    }
+                    else if (deckManaCost[1] >= 9)
+                    {
+                        fluctuationNum = evaluationNum - evaluationFluctuation;
+                    }
+                    break;
+                case 3:
+                    if (deckManaCost[2] < 4)
+                    {
+                        fluctuationNum = evaluationNum + evaluationFluctuation;
+                    }
+                    else if (deckManaCost[2] >= 6)
+                    {
+                        fluctuationNum = evaluationNum - evaluationFluctuation;
+                    }
+                    break;
+                case 4:
+                    if (deckManaCost[3] < 3)
+                    {
+                        fluctuationNum = evaluationNum + evaluationFluctuation;
+                    }
+                    else if (deckManaCost[3] >= 6)
+                    {
+                        fluctuationNum = evaluationNum - evaluationFluctuation;
+                    }
+                    break;
+                case 5:
+                    if (deckManaCost[4] < 2)
+                    {
+                        fluctuationNum = evaluationNum + evaluationFluctuation;
+                    }
+                    else if (deckManaCost[4] >= 4)
+                    {
+                        fluctuationNum = evaluationNum - evaluationFluctuation;
+                    }
+                    break;
+                case 6:
+                    if (deckManaCost[5] < 1)
+                    {
+                        fluctuationNum = evaluationNum + evaluationFluctuation;
+                    }
+                    else if (deckManaCost[5] >= 4)
+                    {
+                        fluctuationNum = evaluationNum - evaluationFluctuation;
+                    }
+                    break;
+                case 7:
+                    if (deckManaCost[6] < 1)
+                    {
+                        fluctuationNum = evaluationNum + evaluationFluctuation;
+                    }
+                    else if (deckManaCost[6] >= 4)
+                    {
+                        fluctuationNum = evaluationNum - evaluationFluctuation;
+                    }
+                    break;
+                default:
+                    if (deckManaCost[7] < 1)
+                    {
+                        fluctuationNum = evaluationNum + evaluationFluctuation;
+                    }
+                    else if (deckManaCost[7] >= 4)
+                    {
+                        fluctuationNum = evaluationNum - evaluationFluctuation;
+                    }
+                    break;
+            }
+        }
+
+        return fluctuationNum;
+    }
+
+    //デッキ評価
+    void ManaCarveEvaluation()
+    {
+        int deckEvalution = 0;
+
+        if(NPC1deckCost[0] >=0 && NPC1deckCost[0] <=3)
+        {
+            deckEvalution++;
+        }
+        else
+        {
+            //deckEvalution--;
+        }
+
+        if (NPC1deckCost[1] >= 6 && NPC1deckCost[1] <= 9)
+        {
+            deckEvalution++;
+        }
+        else
+        {
+            //deckEvalution--;
+        }
+
+        if (NPC1deckCost[2] >= 4 && NPC1deckCost[2] <= 6)
+        {
+            deckEvalution++;
+        }
+        else
+        {
+            //deckEvalution--;
+        }
+
+        if (NPC1deckCost[3] >= 3 && NPC1deckCost[3] <= 6)
+        {
+            deckEvalution++;
+        }
+        else
+        {
+            //deckEvalution--;
+        }
+
+        if (NPC1deckCost[4] >= 2 && NPC1deckCost[4] <= 4)
+        {
+            deckEvalution++;
+        }
+        else
+        {
+            //deckEvalution--;
+        }
+
+        for (int i = 5; i < 8;i++)
+        {
+            if (NPC1deckCost[i] >= 1 && NPC1deckCost[i] <= 4)
+            {
+                deckEvalution++;
+            }
+            else
+            {
+                //deckEvalution--;
+            }
+        }
+
+        Debug.Log(deckEvalution);
     }
 }

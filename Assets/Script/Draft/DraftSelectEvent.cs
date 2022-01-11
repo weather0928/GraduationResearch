@@ -26,11 +26,11 @@ public class DraftSelectEvent : MonoBehaviour
         //デッキ保存処理
         if (rightButton == true)
         {
-            draftManagerScript.cardSelect(draftManagerScript.rightCardList,deck);
+            draftManagerScript.cardSelect(draftManagerScript.rightCardList,deck,draftManagerScript.playerDeckCost);
         }
         else if (leftButton == true)
         {
-            draftManagerScript.cardSelect(draftManagerScript.leftCardList,deck);
+            draftManagerScript.cardSelect(draftManagerScript.leftCardList,deck, draftManagerScript.playerDeckCost);
         }
 
         //表示リセット処理

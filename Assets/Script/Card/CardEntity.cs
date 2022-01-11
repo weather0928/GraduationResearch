@@ -11,6 +11,6 @@ public class CardEntity : ScriptableObject
     public int cost;
     public int power;
     public int hp;
-    public int evaluation;
+    public float evaluation;
     //public Sprite icon; //‰æ‘œ•\¦iŒã“ú’Ç‰Á?j
 }
