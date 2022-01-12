@@ -17,7 +17,6 @@ public class NPCGameManager : MonoBehaviour
     [SerializeField] Text NPC1HPText;　//プレイヤーのHP表示場所
     [SerializeField] Transform NPC1HandCard;　//手札を置く場所
     List<int> NPCDeck1;　//デッキ管理
-    List<CardController> NPC1HandList;　//手札管理
     int NPC1MAXMana, NPC1Mana;　//マナ管理
     int NPC1HP;　//HP管理
 
@@ -27,7 +26,6 @@ public class NPCGameManager : MonoBehaviour
     [SerializeField] Text NPC2HPText;
     [SerializeField] Transform NPC2HandCard;
     List<int> NPCDeck2;
-    List<CardController> NPC2HandList;
     int NPC2MAXMana, NPC2Mana;
     int NPC2HP;
 
@@ -40,17 +38,22 @@ public class NPCGameManager : MonoBehaviour
 
     //試合終了時に使う物
     [SerializeField] GameObject gameEndText;　//試合終了時のテキスト
-    bool gameEndFlag;　//試合終了フラグ
+    bool gameEndFlag; //試合終了フラグ
 
     void Start()
+    {
+        StartGame();
+    }
+
+    void StartGame()
     {
         Deck NPC1OriginalDeck = Resources.Load<Deck>("Deck/NPC1");
         Deck NPC2OriginalDeck = Resources.Load<Deck>("Deck/NPC2");
 
-        NPCDeck1 = new List<int>(NPC1OriginalDeck.cardList.OrderBy( a => Guid.NewGuid()).ToList());
+        NPCDeck1 = new List<int>(NPC1OriginalDeck.cardList.OrderBy(a => Guid.NewGuid()).ToList());
         NPCDeck2 = new List<int>(NPC2OriginalDeck.cardList.OrderBy(a => Guid.NewGuid()).ToList());
 
-        for (int i = 0;i < 3;i++)
+        for (int i = 0; i < 3; i++)
         {
             DrowCard(NPCDeck1, NPC1HandCard);
             DrowCard(NPCDeck2, NPC2HandCard);
@@ -158,19 +161,17 @@ public class NPCGameManager : MonoBehaviour
     //NPC1（画面手前）のターン処理
     IEnumerator NPC1Turn()
     {
-        //ドロー処理
-        if(turnCount == 2) //後攻1ターン目なら追加で1ドロー
-        {
-            DrowCard(NPCDeck1, NPC1HandCard);
-            Debug.Log("aaa");
-        }
-
         if (NPCDeck1.Count == 0) //デッキが0枚なら負けの処理をする
         {
-            GameEnd("NPC2");
+            GameEnd(false);
             yield break;
         }
         else //デッキにカードがあればドローする
+        {
+            DrowCard(NPCDeck1, NPC1HandCard);
+        }
+
+        if(turnCount == 2) //後攻ならもう1ドロー
         {
             DrowCard(NPCDeck1, NPC1HandCard);
         }
@@ -188,75 +189,108 @@ public class NPCGameManager : MonoBehaviour
         //処理待ち
         yield return new WaitForSeconds(1f);
 
-        //召喚するモンスターを決めて召喚
-        for (int i = 0; i < handCardList.Length; i++)
-        {
-            if (handCardList[i].model.cost <= NPC1Mana && NPC1FieldCardList.Length < 5)
-            {
-                SummonCard(handCardList[i], NPC1Field);
-                NPC1Mana -= handCardList[i].model.cost;
-                Destroy(handCardList[i].gameObject);
-                NPC1ManaText.text = NPC1Mana + "/" + NPC1MAXMana;
-                //処理待ち
-                yield return new WaitForSeconds(1f);
-            }
-        }
-
-        //NPC1のフィールドの状況を再取得
-        NPC1FieldCardList = NPC1Field.GetComponentsInChildren<CardController>();
-
         //攻撃可能なモンスターがいれば攻撃
         while (Array.Exists(NPC1FieldCardList, card => card.model.canAttack))
         {
             //攻撃可能カードを取得
             CardController[] NPC1CanAttackCardList = Array.FindAll(NPC1FieldCardList, card => card.model.canAttack);
+            int totalPower = 0;
 
-            //NPC2のフィールドの状況を取得
-            CardController[] NPC2FieldCardList = NPC2Field.GetComponentsInChildren<CardController>();
-
-            //攻撃するカードを選択
-            CardController attackCard = NPC1CanAttackCardList[0];
-
-            //攻撃対象を選択
-            if(NPC2FieldCardList.Length > 0) //相手フィールドにモンスターがいたら、1番古いモンスターに攻撃
+            //攻撃可能カードの合計攻撃力を計算
+            for (int i = 0; i < NPC1CanAttackCardList.Length; i++)
             {
-                CardController defenceCard = NPC2FieldCardList[0];
-                CardBattle(attackCard, defenceCard);
+                totalPower += NPC1CanAttackCardList[i].model.power;
             }
-            else //相手フィールドにモンスターがいなければ、相手リーダーに攻撃
+
+            if (totalPower >= NPC2HP)　//攻撃できるカードの攻撃力合計値が相手のHPより高ければ、リーダーに攻撃
             {
+                //攻撃するカードを選択
+                CardController attackCard = NPC1CanAttackCardList[0];
                 AttackToLeader(attackCard, true);
             }
+            else
+            {
+                //NPC2のフィールドの状況を取得
+                CardController[] NPC2FieldCardList = NPC2Field.GetComponentsInChildren<CardController>();
+
+                //攻撃するカードを選択
+                CardController attackCard = NPC1CanAttackCardList[0];
+
+                //攻撃対象を選択
+                if (NPC2FieldCardList.Length > 0) //相手フィールドにモンスターがいる場合
+                {
+                    for(int i = 0;i < NPC2FieldCardList.Length;i++)
+                    {
+                        //自分の攻撃するモンスターの攻撃力の値よりもHPが低い相手のモンスターがいたら攻撃
+                        if(attackCard.model.power >= NPC2FieldCardList[i].model.hp)
+                        {
+                            CardController defenceCard = NPC2FieldCardList[i];
+                            CardBattle(attackCard, defenceCard);
+                            break;
+                        }
+                        //自分の攻撃するモンスターの攻撃力の値よりもHPが低い相手のモンスターがいなければリーダーに攻撃
+                        if (i == NPC2FieldCardList.Length - 1)
+                        {
+                            AttackToLeader(attackCard, true);
+                        }
+                    }
+                }
+                else //相手フィールドにモンスターがいなければ、相手リーダーに攻撃
+                {
+                    AttackToLeader(attackCard, true);
+                }
+            }
+
+            //自分のフィールドの状況を再取得
+            NPC1FieldCardList = NPC1Field.GetComponentsInChildren<CardController>();
 
             //処理待ち
             yield return new WaitForSeconds(1f);
 
-            //自分のフィールドの状況を再取得
-            NPC1FieldCardList = NPC1Field.GetComponentsInChildren<CardController>();
+            if (gameEndFlag == true)
+            {
+                yield break;
+            }
         }
 
         if(gameEndFlag == false)
         {
+            //NPC1のフィールドの状況を再取得
+            NPC1FieldCardList = NPC1Field.GetComponentsInChildren<CardController>();
+
+            //召喚するモンスターを決めて召喚
+            for (int i = 0; i < handCardList.Length; i++)
+            {
+                if (handCardList[i].model.cost <= NPC1Mana && NPC1FieldCardList.Length < 5)
+                {
+                    SummonCard(handCardList[i], NPC1Field);
+                    NPC1Mana -= handCardList[i].model.cost;
+                    Destroy(handCardList[i].gameObject);
+                    NPC1ManaText.text = NPC1Mana + "/" + NPC1MAXMana;
+                    NPC1FieldCardList = NPC1Field.GetComponentsInChildren<CardController>();
+                    //処理待ち
+                    yield return new WaitForSeconds(1f);
+                }
+            }
+
             ChangeTurn();
         }
-
     }
 
     //NPC2（画面奥）のターン処理
     IEnumerator NPC2Turn()
     {
-        //ドロー処理
-        if (turnCount == 2) //後攻1ターン目なら追加で1ドロー
+        if (NPCDeck2.Count == 0) //デッキが0枚なら負けの処理をする
+        {
+            GameEnd(true);
+            yield break;
+        }
+        else //デッキにカードがあればドローする
         {
             DrowCard(NPCDeck2, NPC2HandCard);
         }
 
-        if (NPCDeck2.Count == 0) //デッキが0枚なら負けの処理をする
-        {
-            GameEnd("NPC1");
-            yield break;
-        }
-        else //デッキにカードがあればドローする
+        if(turnCount == 2) //後攻ならもう1ドロー
         {
             DrowCard(NPCDeck2, NPC2HandCard);
         }
@@ -271,54 +305,90 @@ public class NPCGameManager : MonoBehaviour
         //処理待ち
         yield return new WaitForSeconds(1f);
 
-        for (int i = 0; i < handCardList.Length; i++)
-        {
-            if (handCardList[i].model.cost <= NPC2Mana && NPC2FieldCardList.Length < 5)
-            {
-                SummonCard(handCardList[i], NPC2Field);
-                NPC2Mana -= handCardList[i].model.cost;
-                Destroy(handCardList[i].gameObject);
-                NPC2ManaText.text = NPC2Mana + "/" + NPC2MAXMana;
-                //処理待ち
-                yield return new WaitForSeconds(1f);
-            }
-        }
-
-        //NPC2のフィールドの状況を再取得
-        NPC2FieldCardList = NPC2Field.GetComponentsInChildren<CardController>();
-
         //攻撃可能なモンスターがいれば攻撃
         while (Array.Exists(NPC2FieldCardList, card => card.model.canAttack))
         {
             //攻撃可能カードを取得
             CardController[] NPC2CanAttackCardList = Array.FindAll(NPC2FieldCardList, card => card.model.canAttack);
+            int totalPower = 0;
 
-            //NPC1のフィールドの状況を取得
-            CardController[] NPC1FieldCardList = NPC1Field.GetComponentsInChildren<CardController>();
-
-            //攻撃するカードを選択
-            CardController attackCard = NPC2CanAttackCardList[0];
-
-            //攻撃対象を選択
-            if (NPC1FieldCardList.Length > 0) //相手フィールドにモンスターがいたら、1番古いモンスターに攻撃
+            //攻撃可能カードの合計攻撃力を計算
+            for (int i = 0; i < NPC2CanAttackCardList.Length; i++)
             {
-                CardController defenceCard = NPC1FieldCardList[0];
-                CardBattle(attackCard, defenceCard);
+                totalPower += NPC2CanAttackCardList[i].model.power;
             }
-            else //相手フィールドにモンスターがいなければ、相手リーダーに攻撃
+
+            if (totalPower >= NPC1HP)　//攻撃できるカードの攻撃力合計値が相手のHPより高ければ、リーダーに攻撃
             {
+                //攻撃するカードを選択
+                CardController attackCard = NPC2CanAttackCardList[0];
                 AttackToLeader(attackCard, false);
             }
+            else
+            {
+                //NPC1のフィールドの状況を取得
+                CardController[] NPC1FieldCardList = NPC1Field.GetComponentsInChildren<CardController>();
+
+                //攻撃するカードを選択
+                CardController attackCard = NPC2CanAttackCardList[0];
+
+                //攻撃対象を選択
+                if (NPC1FieldCardList.Length > 0) //相手フィールドにモンスターがいる場合
+                {
+                    for (int i = 0; i < NPC1FieldCardList.Length; i++)
+                    {
+                        //自分の攻撃するモンスターの攻撃力の値よりもHPが低い相手のモンスターがいたら攻撃
+                        if (attackCard.model.power >= NPC1FieldCardList[i].model.hp)
+                        {
+                            CardController defenceCard = NPC1FieldCardList[i];
+                            CardBattle(attackCard, defenceCard);
+                            break;
+                        }
+                        //自分の攻撃するモンスターの攻撃力の値よりもHPが低い相手のモンスターがいなければリーダーに攻撃
+                        if (i == NPC1FieldCardList.Length - 1)
+                        {
+                            AttackToLeader(attackCard, false);
+                        }
+                    }
+                }
+                else //相手フィールドにモンスターがいなければ、相手リーダーに攻撃
+                {
+                    AttackToLeader(attackCard, false);
+                }
+            }
+
+            //自分のフィールドの状況を再取得
+            NPC2FieldCardList = NPC2Field.GetComponentsInChildren<CardController>();
 
             //処理待ち
             yield return new WaitForSeconds(1f);
 
-            //自分のフィールドの状況を再取得
-            NPC2FieldCardList = NPC2Field.GetComponentsInChildren<CardController>();
+            if (gameEndFlag == true)
+            {
+                yield break;
+            }
+
         }
 
         if (gameEndFlag == false)
         {
+            //自分のフィールドの状況を再取得
+            NPC2FieldCardList = NPC2Field.GetComponentsInChildren<CardController>();
+
+            for (int i = 0; i < handCardList.Length; i++)
+            {
+                if (handCardList[i].model.cost <= NPC2Mana && NPC2FieldCardList.Length < 5)
+                {
+                    SummonCard(handCardList[i], NPC2Field);
+                    NPC2Mana -= handCardList[i].model.cost;
+                    Destroy(handCardList[i].gameObject);
+                    NPC2ManaText.text = NPC2Mana + "/" + NPC2MAXMana;
+                    NPC2FieldCardList = NPC2Field.GetComponentsInChildren<CardController>();
+                    //処理待ち
+                    yield return new WaitForSeconds(1f);
+                }
+            }
+
             ChangeTurn();
         }
     }
@@ -375,11 +445,11 @@ public class NPCGameManager : MonoBehaviour
 
         if (NPC1HP <= 0)
         {
-            GameEnd("NPC2");
+            GameEnd(false);
         }
         else if (NPC2HP <= 0)
         {
-            GameEnd("NPC1");
+            GameEnd(true);
         }
     }
 
@@ -391,11 +461,20 @@ public class NPCGameManager : MonoBehaviour
     }
 
     //試合終了処理
-    void GameEnd(string winner)
+    void GameEnd(bool NPC1WinFlag)
     {
         gameEndText.SetActive(true);
         Text winnerText = gameEndText.GetComponent<Text>();
-        winnerText.text = winner + "win";
+
+        if(NPC1WinFlag == true)
+        {
+            winnerText.text = "NPC1win";
+        }
+        else
+        {
+            winnerText.text = "NPC2win";
+        }
+
         gameEndFlag = true;
     }
 }
