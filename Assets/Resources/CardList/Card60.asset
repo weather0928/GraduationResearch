@@ -16,5 +16,5 @@ MonoBehaviour:
   name: "\u30E2\u30F3\u30B9\u30BF\u30FC60"
   cost: 2
   power: 2
-  hp: 1
-  evaluation: 6
+  hp: 3
+  evaluation: 8

@@ -15,6 +15,6 @@ MonoBehaviour:
   cardID: 31
   name: "\u30E2\u30F3\u30B9\u30BF\u30FC31"
   cost: 4
-  power: 3
-  hp: 3
-  evaluation: 5.5
+  power: 7
+  hp: 5
+  evaluation: 9.5

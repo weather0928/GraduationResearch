@@ -1392,7 +1392,7 @@ MonoBehaviour:
   NPC2ManaCost: {fileID: 53451330}
   NPC2HPText: {fileID: 912815095}
   NPC2HandCard: {fileID: 2137350905}
-  isNPC1Turn: 0
+  isNPC1Turn: 1
   gameEndText: {fileID: 2059762852}
 --- !u!4 &1712973542
 Transform:
