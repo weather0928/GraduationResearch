@@ -226,8 +226,6 @@ public class DraftManager : MonoBehaviour
                 ManaCarveEvaluation(NPC1deckCost);
                 ManaCarveEvaluation(NPC2deckCost);
 
-                /*Debug.Log("NPC1DeckEvaluation:" + NPC1DeckEvaluation);
-                Debug.Log("NPC2DeckEvaluation:" + NPC2DeckEvaluation);*/
                 Debug.Log("NPC1SumEvaluation:" + NPC1SumEvaluation);
                 Debug.Log("NPC1RandomCount:" + NPC1RandomCount);
                 Debug.Log("NPC2SumEvaluation:" + NPC2SumEvaluation);
@@ -238,7 +236,7 @@ public class DraftManager : MonoBehaviour
     }
 
     //NPCの思考部分
-    //選択肢の評価がそれぞれ近いときに最低数値が高い方を選択するNPC
+    //提案手法両方組み合わせたNPC
     void NPC1Pick(Deck deck)
     {
         //左側の選択肢
@@ -251,18 +249,7 @@ public class DraftManager : MonoBehaviour
         float rightMaxEvaluation = -100f;
         float rightTotalEvaluation = 0f;
 
-        //左右の評価を計算
-        for (int i = 0; i < 2; i++)
-        {
-            leftTotalEvaluation += leftCardList[i].model.evaluation;
-            if (leftMinEvaluation > leftCardList[i].model.evaluation) leftMinEvaluation = leftCardList[i].model.evaluation;
-            if (leftMaxEvaluation < leftCardList[i].model.evaluation) leftMaxEvaluation = leftCardList[i].model.evaluation;
-
-            rightTotalEvaluation += rightCardList[i].model.evaluation;
-            if (rightMinEvaluation > rightCardList[i].model.evaluation) rightMinEvaluation = rightCardList[i].model.evaluation;
-            if (rightMaxEvaluation < rightCardList[i].model.evaluation) rightMaxEvaluation = rightCardList[i].model.evaluation;
-        }
-        /*if (NPCDeck1.cardList.Count >= NPCChangeEvaluation)　//マナカーブの調整のために評価を変える処理
+        if (NPCDeck1.cardList.Count >= NPCChangeEvaluation)　//マナカーブの調整のために評価を変える処理
         {
             for (int i = 0;i < 2;i++)
             {
@@ -296,12 +283,12 @@ public class DraftManager : MonoBehaviour
                 if (rightMinEvaluation > rightCardList[i].model.evaluation) rightMinEvaluation = rightCardList[i].model.evaluation;
                 if (rightMaxEvaluation < rightCardList[i].model.evaluation) rightMaxEvaluation = rightCardList[i].model.evaluation;
             }
-        }*/
+        }
 
         float abs = leftTotalEvaluation - rightTotalEvaluation;
 
         //カード選択処理
-        if(Mathf.Abs(abs) <= 0.5)　//左右の評価値が同じときの処理
+        if(Mathf.Abs(abs) == 0.0)　//左右の評価値が同じときの処理
         {
             NPC1SumEvaluation++;
 
@@ -373,118 +360,32 @@ public class DraftManager : MonoBehaviour
         }
     }
 
-    //マナカーブの調整をしないNPC
+    //評価が高い選択肢をただ選ぶNPC
     void NPC2Pick(Deck deck)
     {
         //左側の選択肢
-        float leftMinEvaluation = 100f; //最低評価のカードを計測
-        float leftMaxEvaluation = -100f; //最大評価のカードを計測
         float leftTotalEvaluation = 0f; //選択肢の評価合計値
 
         //右側の選択肢
-        float rightMinEvaluation = 100f;
-        float rightMaxEvaluation = -100f;
         float rightTotalEvaluation = 0f;
 
         //左右の評価を計算
         for (int i = 0; i < 2; i++)
         {
             leftTotalEvaluation += leftCardList[i].model.evaluation;
-            if (leftMinEvaluation > leftCardList[i].model.evaluation) leftMinEvaluation = leftCardList[i].model.evaluation;
-            if (leftMaxEvaluation < leftCardList[i].model.evaluation) leftMaxEvaluation = leftCardList[i].model.evaluation;
-
             rightTotalEvaluation += rightCardList[i].model.evaluation;
-            if (rightMinEvaluation > rightCardList[i].model.evaluation) rightMinEvaluation = rightCardList[i].model.evaluation;
-            if (rightMaxEvaluation < rightCardList[i].model.evaluation) rightMaxEvaluation = rightCardList[i].model.evaluation;
         }
-        /*if(NPCDeck2.cardList.Count >= NPCChangeEvaluation)　//マナカーブの調整のために評価を変える処理
-        {
-            for (int i = 0; i < 2; i++)
-            {
-                //カードの評価を変動させた値を保存する
-                float leftCardEvaluation; //左側のカード
-                float rightCardEvaluation; //右側のカード
-
-                //評価を変動させる処理
-                //左側
-                leftCardEvaluation = EvaluationFluctuation(leftCardList[i], NPC2deckCost);
-                leftTotalEvaluation += leftCardEvaluation;
-                if (leftMinEvaluation > leftCardEvaluation) leftMinEvaluation = leftCardEvaluation;
-                if (leftMaxEvaluation < leftCardEvaluation) leftMaxEvaluation = leftCardEvaluation;
-
-                //右側
-                rightCardEvaluation = EvaluationFluctuation(rightCardList[i], NPC2deckCost);
-                rightTotalEvaluation += rightCardEvaluation;
-                if (rightMinEvaluation > rightCardEvaluation) rightMinEvaluation = rightCardEvaluation;
-                if (rightMaxEvaluation < rightCardEvaluation) rightMaxEvaluation = rightCardEvaluation;
-            }
-        }
-        else　//マナカーブの調整をしない時の処理
-        {
-            for (int i = 0; i < 2; i++)
-            {
-                leftTotalEvaluation += leftCardList[i].model.evaluation;
-                if (leftMinEvaluation > leftCardList[i].model.evaluation) leftMinEvaluation = leftCardList[i].model.evaluation;
-                if (leftMaxEvaluation < leftCardList[i].model.evaluation) leftMaxEvaluation = leftCardList[i].model.evaluation;
-
-                rightTotalEvaluation += rightCardList[i].model.evaluation;
-                if (rightMinEvaluation > rightCardList[i].model.evaluation) rightMinEvaluation = rightCardList[i].model.evaluation;
-                if (rightMaxEvaluation < rightCardList[i].model.evaluation) rightMaxEvaluation = rightCardList[i].model.evaluation;
-            }
-        }*/
 
         float abs = leftTotalEvaluation - rightTotalEvaluation;
 
         //カード選択処理
-        if (Mathf.Abs(abs) <= 0.5)　//左右の評価値が同じときの処理
+        if (Mathf.Abs(abs) == 0.0)　//左右の評価値が同じときの処理
         {
             NPC2SumEvaluation++;
+            NPC2RandomCount++;
 
-            if (leftMaxEvaluation > rightMaxEvaluation) //最大評価で決められない時は最低評価で決める
-            {
-                cardSelect(leftCardList, deck, NPC2deckCost);
-                NPC2LeftSelectFlag = true;
-                foreach (CardController card in leftCardList)
-                {
-                    NPC2DeckEvaluation += card.model.evaluation;
-                }
-            }
-            else if (leftMaxEvaluation < rightMaxEvaluation)
-            {
-                cardSelect(rightCardList, deck, NPC2deckCost);
-                foreach (CardController card in rightCardList)
-                {
-                    NPC2DeckEvaluation += card.model.evaluation;
-                }
-            }
-            else if (leftMinEvaluation > rightMinEvaluation)　//最低評価の数値が左のほうが高い場合は左を選択
-            {
-                cardSelect(leftCardList, deck, NPC2deckCost);
-                NPC2LeftSelectFlag = true;
-                foreach (CardController card in leftCardList)
-                {
-                    NPC2DeckEvaluation += card.model.evaluation;
-                }
-            }
-            else if (leftMinEvaluation < rightMinEvaluation)　//最低評価の数値が右のほうが高い場合は右を選択
-            {
-                cardSelect(rightCardList, deck, NPC2deckCost);
-                foreach (CardController card in rightCardList)
-                {
-                    NPC2DeckEvaluation += card.model.evaluation;
-                }
-            }
-            else //最低・最大ともに評価が同じ場合は左を選択
-            {
-                NPC2RandomCount++;
-
-                cardSelect(leftCardList, deck, NPC2deckCost);
-                NPC2LeftSelectFlag = true;
-                foreach (CardController card in leftCardList)
-                {
-                    NPC2DeckEvaluation += card.model.evaluation;
-                }
-            }
+            cardSelect(leftCardList, deck, NPC2deckCost);
+            NPC2LeftSelectFlag = true;
         }
         else　//上記に当てはまらない場合は評価が高い方を選択
         {
@@ -492,18 +393,10 @@ public class DraftManager : MonoBehaviour
             {
                 cardSelect(leftCardList, deck, NPC2deckCost);
                 NPC2LeftSelectFlag = true;
-                foreach (CardController card in leftCardList)
-                {
-                    NPC2DeckEvaluation += card.model.evaluation;
-                }
             }
             else if (leftTotalEvaluation < rightTotalEvaluation)
             {
                 cardSelect(rightCardList, deck, NPC2deckCost);
-                foreach (CardController card in rightCardList)
-                {
-                    NPC2DeckEvaluation += card.model.evaluation;
-                }
             }
         }
     }
