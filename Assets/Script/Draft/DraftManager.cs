@@ -291,8 +291,16 @@ public class DraftManager : MonoBehaviour
         if(Mathf.Abs(abs) == 0.0)　//左右の評価値が同じときの処理
         {
             NPC1SumEvaluation++;
+            NPC1RandomCount++;
 
-            if (leftMinEvaluation > rightMinEvaluation)　//最低評価の数値が左のほうが高い場合は左を選択
+            cardSelect(leftCardList, deck, NPC1deckCost);
+            NPC1LeftSelectFlag = true;
+            foreach (CardController card in leftCardList)
+            {
+                NPC1DeckEvaluation += card.model.evaluation;
+            }
+
+            /*if (leftMinEvaluation > rightMinEvaluation)　//最低評価の数値が左のほうが高い場合は左を選択
             {
                 cardSelect(leftCardList, deck, NPC1deckCost);
                 NPC1LeftSelectFlag = true;
@@ -336,7 +344,7 @@ public class DraftManager : MonoBehaviour
                 {
                     NPC1DeckEvaluation += card.model.evaluation;
                 }
-            }
+            }*/
         }
         else　//上記に当てはまらない場合は評価が高い方を選択
         {
